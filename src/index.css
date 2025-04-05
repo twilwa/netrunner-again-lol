@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Rajdhani', sans-serif;
+  background-color: #0f1215;
+  color: #5ce1e6;
+}
+
+@layer base {
+  body {
+    @apply overflow-hidden m-0 p-0;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+}
+
+@layer components {
+  .cyber-panel {
+    @apply relative bg-gray-900 border border-cyan-500 shadow-lg;
+    box-shadow: 0 0 10px rgba(92, 225, 230, 0.3), inset 0 0 5px rgba(92, 225, 230, 0.2);
+    clip-path: polygon(
+      0% 20px, 
+      20px 0%, 
+      calc(100% - 20px) 0%, 
+      100% 20px, 
+      100% calc(100% - 20px), 
+      calc(100% - 20px) 100%, 
+      20px 100%, 
+      0% calc(100% - 20px)
+    );
+  }
+  
+  .cyber-border {
+    @apply relative;
+    --b: 2px;   /* border thickness */
+    --s: 20px;  /* size of the corner */
+    
+    border: var(--b) solid #5ce1e6;
+    position: relative;
+    border-radius: 0;
+  }
+  
+  .cyber-border:after {
+    content: "";
+    position: absolute;
+    top: calc(-1 * var(--b));
+    left: calc(-1 * var(--b));
+    height: calc(100% + var(--b) * 2);
+    width: calc(100% + var(--b) * 2);
+    background: linear-gradient(
+        to bottom, 
+        #5ce1e6 0%, 
+        rgba(92, 225, 230, 0.2) 15%,
+        rgba(92, 225, 230, 0.1) 25%, 
+        rgba(92, 225, 230, 0) 100%
+    );
+    mask:
+      conic-gradient(from 180deg at top var(--s) right var(--s), #0000 90deg, #000 0) 
+        var(--_i, 200%) 0 /200% var(--_i, var(--s)) no-repeat,
+      conic-gradient(at bottom var(--s) left var(--s), #0000 90deg, #000 0) 
+        0 var(--_i, 200%)/var(--_i, var(--s)) 200% no-repeat;
+    transition: .3s, mask-position .3s .3s;
+    z-index: -1;
+    pointer-events: none;
+  }
+  
+  .cyber-glow {
+    text-shadow: 0 0 5px #5ce1e6, 0 0 10px #5ce1e6;
+  }
+  
+  .cyber-btn {
+    @apply cursor-pointer bg-gray-800 hover:bg-gray-700 text-cyan-400 px-4 py-2 transition-all duration-200;
+    border: 1px solid rgba(92, 225, 230, 0.5);
+    box-shadow: 0 0 5px rgba(92, 225, 230, 0.3);
+    clip-path: polygon(
+      10px 0%, 
+      100% 0%, 
+      100% calc(100% - 10px), 
+      calc(100% - 10px) 100%, 
+      0% 100%, 
+      0% 10px
+    );
+  }
+  
+  .cyber-btn:hover {
+    @apply text-cyan-300;
+    box-shadow: 0 0 8px rgba(92, 225, 230, 0.5);
+  }
+  
+  .card {
+    @apply relative rounded-md p-4 cursor-pointer transition-all duration-200 bg-gray-800 border border-cyan-800;
+    box-shadow: 0 0 5px rgba(92, 225, 230, 0.3);
+  }
+  
+  .card:hover {
+    box-shadow: 0 0 10px rgba(92, 225, 230, 0.5);
+    transform: translateY(-5px);
+  }
+  
+  /* Hex grid styles */
+  .hex-grid-container {
+    @apply absolute inset-0 transform origin-center;
+  }
+  
+  .hex-grid {
+    @apply relative w-full h-full;
+  }
+  
+  .hex-territory {
+    @apply z-0 hover:z-10;
+  }
+  
+  .hex-territory:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+.font-cyber {
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
