@@ -1,9 +1,13 @@
 import '@testing-library/jest-dom';
 
-// Suppress console errors during tests
-jest.spyOn(console, 'error').mockImplementation(() => {});
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
-// Mock window.matchMedia for responsive design tests
+// Mock window.matchMedia
 window.matchMedia = window.matchMedia || function() {
   return {
     matches: false,
@@ -11,40 +15,48 @@ window.matchMedia = window.matchMedia || function() {
     removeListener: function() {},
     addEventListener: function() {},
     removeEventListener: function() {},
-    dispatchEvent: function() { return false; },
+    dispatchEvent: function() {
+      return true;
+    },
   };
 };
 
-// Mock IntersectionObserver for components that rely on it
+// Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  observe() { return null; }
-  unobserve() { return null; }
-  disconnect() { return null; }
+  constructor(callback: IntersectionObserverCallback) {
+    this.callback = callback;
+  }
+  callback: IntersectionObserverCallback;
+  root = null;
+  rootMargin = '';
+  thresholds = [];
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+  takeRecords() { return []; }
 };
 
-// Mock requestAnimationFrame for animations
-global.requestAnimationFrame = function(callback) {
+// Mock requestAnimationFrame
+global.requestAnimationFrame = (callback) => {
   return setTimeout(callback, 0);
 };
 
-// Create a mock for localStorage
-const localStorageMock = (function() {
-  let store: Record<string, string> = {};
-  return {
-    getItem(key: string) {
-      return store[key] || null;
-    },
-    setItem(key: string, value: string) {
-      store[key] = value.toString();
-    },
-    removeItem(key: string) {
-      delete store[key];
-    },
-    clear() {
-      store = {};
-    }
-  };
-})();
+// Mock cancelAnimationFrame
+global.cancelAnimationFrame = (id) => {
+  clearTimeout(id);
+};
 
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+// Suppress console errors during tests
+const originalConsoleError = console.error;
+console.error = (...args) => {
+  // Ignore React DOM errors like "act" warnings
+  if (
+    typeof args[0] === 'string' && 
+    (args[0].includes('Warning: ReactDOM.render') ||
+     args[0].includes('Warning: An update to') ||
+     args[0].includes('Warning: React has detected a change'))
+  ) {
+    return;
+  }
+  originalConsoleError(...args);
+};
