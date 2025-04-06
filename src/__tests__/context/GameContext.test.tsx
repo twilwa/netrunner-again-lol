@@ -170,4 +170,76 @@ describe('GameContext', () => {
     // Turn should increment
     expect(screen.getByTestId('turn')).toHaveTextContent('2');
   });
+
+  test('prevents drawing card outside ACTION_PHASE', () => {
+    render(
+      <GameProvider>
+        <TestComponent />
+      </GameProvider>
+    );
+
+    // Initially in UPKEEP_PHASE
+    expect(screen.getByTestId('phase')).toHaveTextContent('UPKEEP_PHASE');
+
+    const initialHandSize = Number(screen.getByTestId('hand-size').textContent);
+    const initialClicks = Number(screen.getByTestId('clicks').textContent);
+
+    act(() => {
+      fireEvent.click(screen.getByTestId('draw-card'));
+    });
+
+    expect(Number(screen.getByTestId('hand-size').textContent)).toBe(initialHandSize);
+    expect(Number(screen.getByTestId('clicks').textContent)).toBe(initialClicks);
+  });
+
+  test('prevents drawing card when clicksRemaining is 0', () => {
+    render(
+      <GameProvider>
+        <TestComponent />
+      </GameProvider>
+    );
+
+    // Move to ACTION_PHASE
+    act(() => {
+      fireEvent.click(screen.getByTestId('end-phase'));
+    });
+
+    // Exhaust clicks by drawing cards (assuming initial hand + deck > 5)
+    const initialClicks = Number(screen.getByTestId('clicks').textContent);
+    for (let i = 0; i < initialClicks; i++) {
+      act(() => {
+        fireEvent.click(screen.getByTestId('draw-card'));
+      });
+    }
+
+    expect(screen.getByTestId('clicks')).toHaveTextContent('0');
+
+    const handSize = Number(screen.getByTestId('hand-size').textContent);
+
+    // Attempt to draw with 0 clicks
+    act(() => {
+      fireEvent.click(screen.getByTestId('draw-card'));
+    });
+
+    expect(Number(screen.getByTestId('hand-size').textContent)).toBe(handSize);
+  });
+
+  test('processes initial upkeep phase and increases credits', () => {
+    // Store initial credits *before* rendering, as useEffect runs immediately
+    // We need a way to inspect the state *before* the provider runs its effect.
+    // This test might be tricky without modifying the provider or initial state setup.
+    // Let's assume the initial state has 20 credits and upkeep adds at least 1.
+    const baseInitialCredits = 20; // From initialState definition
+
+    render(
+      <GameProvider>
+        <TestComponent />
+      </GameProvider>
+    );
+
+    // The initial useEffect calls UPKEEP_PHASE, so credits should be increased
+    // based on the calculateResourceGain function and initial territories.
+    // We expect it to be greater than the base initial credits.
+    expect(Number(screen.getByTestId('player-credits').textContent)).toBeGreaterThan(baseInitialCredits);
+  });
 });
